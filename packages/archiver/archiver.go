@@ -144,7 +144,17 @@ func (c *Channel) DecideArchive(api *slack.Client, botID string, oldestUnix int6
 }
 
 func (c *Channel) Archive(api *slack.Client) {
-	err := api.ArchiveConversation(c.ID)
+	_, _, err := api.PostMessage(
+		c.ID,
+		slack.MsgOptionText(
+			"このチャンネルは長期間投稿がなかったため自動archiveします。\nもし利用されている場合はお手数ですが手動でunarchiveしてください。",
+			true,
+		),
+	)
+	if err != nil {
+		fmt.Println("[Error] failed archive post channel: " + c.Name + err.Error())
+	}
+	err = api.ArchiveConversation(c.ID)
 	if err != nil {
 		fmt.Println("[Error] failed archive channel: " + c.Name + err.Error())
 	}
