@@ -126,7 +126,8 @@ func (c *Channel) DecideArchive(api *slack.Client, botID string, oldestUnix int6
 		},
 	)
 	if err != nil {
-		panic("[Error] failed channel histories " + err.Error())
+		fmt.Println("[Error] failed channel histories " + c.Name + err.Error())
+		return false
 	}
 	time.Sleep(waitTime)
 	for _, m := range h.Messages {
@@ -145,7 +146,7 @@ func (c *Channel) DecideArchive(api *slack.Client, botID string, oldestUnix int6
 func (c *Channel) Archive(api *slack.Client) {
 	err := api.ArchiveConversation(c.ID)
 	if err != nil {
-		panic("[Error] failed archive channel: " + c.Name + err.Error())
+		fmt.Println("[Error] failed archive channel: " + c.Name + err.Error())
 	}
 }
 
