@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/slack-go/slack"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -24,12 +25,12 @@ type Channel struct {
 	NumMembers int
 }
 
-func NewArchiver(t string, chs []string, d int) *Archiver {
+func NewArchiver(t string, chs string, d int) *Archiver {
 	api := slack.New(t)
 
 	return &Archiver{
 		c: Config{
-			ExcludeChannels:  chs,
+			ExcludeChannels:  strings.Split(chs, ","),
 			ArchiveLimitDays: d,
 		},
 		api: api,
@@ -45,6 +46,12 @@ func (a Archiver) Exec(summaryCh string) {
 	var summaryChID string
 	// チャンネルごとに処理
 	for _, ch := range chs {
+		// 除外チャンネルはskip
+		for _, exName := range a.c.ExcludeChannels {
+			if strings.Contains(ch.Name, exName) {
+				continue
+			}
+		}
 		// チャンネル入っていないと履歴取れないのでjoin
 		if !ch.IsMember {
 			ch.Join(a.api)
